@@ -162,10 +162,14 @@ with col2:
 
 theme = themes[theme_name]
 
+# =========================================================
+# CONTENT
+# =========================================================
+
 intro = st.text_area(
     "Introduction",
     height=350
-)
+).strip()
 
 # =========================================================
 # PROFILE IMAGE
@@ -320,7 +324,7 @@ body {{
 
 .content {{
 
-    padding:15px 20px;
+    padding:8px 20px 15px 20px;
 
     line-height:1.5;
 
@@ -485,7 +489,7 @@ body {{
 
         line-height:1.6;
 
-        padding:15px;
+        padding:10px 15px;
     }}
 
     .footer {{
@@ -656,11 +660,7 @@ onclick="printPage()">
 
     <!-- CONTENT -->
 
-    <div class="content">
-
-        {intro}
-
-    </div>
+    <div class="content">{intro}</div>
 
     <!-- FOOTER -->
 
