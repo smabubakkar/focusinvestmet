@@ -104,24 +104,49 @@ with col1:
         value="More than 5 Years"
     )
 
-with col2:
-
     page_number = st.number_input(
         "Page Number",
         min_value=1,
         value=1
     )
 
+with col2:
+
     uploaded_image = st.file_uploader(
         "Upload Profile Image",
         type=["png", "jpg", "jpeg"]
+    )
+
+    # =====================================================
+    # FONT SIZE CONTROLS
+    # =====================================================
+
+    content_font_size = st.slider(
+        "Content Font Size",
+        14,
+        36,
+        24
+    )
+
+    name_font_size = st.slider(
+        "Name Font Size",
+        20,
+        60,
+        34
+    )
+
+    duration_font_size = st.slider(
+        "Duration Font Size",
+        24,
+        80,
+        52
     )
 
 theme = themes[theme_name]
 
 intro = st.text_area(
     "Introduction",
-    height=280
+    height=300
 )
 
 # =========================================================
@@ -280,7 +305,7 @@ body {{
 
     line-height:1.8;
 
-    font-size:24px;
+    font-size:{content_font_size}px;
 
     height:620px;
 
@@ -328,7 +353,7 @@ body {{
 
 .name {{
 
-    font-size:34px;
+    font-size:{name_font_size}px;
 
     font-weight:bold;
 
@@ -341,7 +366,7 @@ body {{
 
 .duration {{
 
-    font-size:52px;
+    font-size:{duration_font_size}px;
 
     line-height:1.2;
 }}
@@ -455,16 +480,6 @@ body {{
         width:100%;
     }}
 
-    .name {{
-
-        font-size:28px;
-    }}
-
-    .duration {{
-
-        font-size:38px;
-    }}
-
     .instructions {{
 
         display:none;
@@ -483,26 +498,30 @@ body {{
 
 @media print {{
 
+    body {{
+
+        background:white !important;
+
+        padding:0 !important;
+    }}
+
     .print-button,
     .instructions {{
 
-        display:none;
-    }}
-
-    body {{
-
-        margin:0;
-        padding:0;
-        background:white;
+        display:none !important;
     }}
 
     .page {{
 
-        width:794px;
+        width:794px !important;
 
-        min-height:1123px;
+        min-height:1123px !important;
 
-        box-shadow:none;
+        margin:0 auto !important;
+
+        box-shadow:none !important;
+
+        page-break-after:avoid !important;
     }}
 }}
 
@@ -522,13 +541,13 @@ function printPage() {{
 
     printWindow.document.close();
 
-    setTimeout(() => {
+    setTimeout(() => {{
 
         printWindow.focus();
 
         printWindow.print();
 
-    }, 500);
+    }}, 500);
 }}
 
 </script>
@@ -646,9 +665,6 @@ st.components.v1.html(
 # =========================================================
 # SIDEBAR
 # =========================================================
-
-
-
 
 
 st.sidebar.title("PDF Tips")
