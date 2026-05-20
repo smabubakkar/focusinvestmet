@@ -510,11 +510,26 @@ body {{
 
 <script>
 
-function printPage() {{
+function printPage() {
 
-    parent.print();
+    const content = document.documentElement.outerHTML;
 
-}}
+    const printWindow = window.open('', '_blank');
+
+    printWindow.document.open();
+
+    printWindow.document.write(content);
+
+    printWindow.document.close();
+
+    setTimeout(() => {
+
+        printWindow.focus();
+
+        printWindow.print();
+
+    }, 500);
+}
 
 </script>
 
