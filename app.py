@@ -644,16 +644,7 @@ python -m streamlit run app.py
 
 """)
 
-st.sidebar.title("Required Assets")
 
-st.sidebar.write("""
-
-Inside assets folder:
-
-1. focus_logo.png
-2. 100cr_logo.png
-
-""")
 
 st.sidebar.title("PDF Tips")
 
