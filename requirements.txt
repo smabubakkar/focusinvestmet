@@ -1,4 +1,1 @@
 streamlit
-xhtml2pdf
-pillow
-jinja2
