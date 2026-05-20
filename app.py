@@ -169,7 +169,9 @@ theme = themes[theme_name]
 intro = st.text_area(
     "Introduction",
     height=350
-).strip()
+)
+
+# Remove ONLY accidental first newline
 
 # =========================================================
 # PROFILE IMAGE
