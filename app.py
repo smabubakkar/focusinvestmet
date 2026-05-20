@@ -125,7 +125,7 @@ with col2:
         "Content Font Size",
         14,
         36,
-        24
+        22
     )
 
     name_font_size = st.slider(
@@ -150,7 +150,7 @@ with col2:
         "Header Height",
         80,
         250,
-        140
+        120
     )
 
     footer_height = st.slider(
@@ -171,7 +171,7 @@ theme = themes[theme_name]
 
 intro = st.text_area(
     "Introduction",
-    height=300
+    height=350
 )
 
 # =========================================================
@@ -262,7 +262,7 @@ html, body {{
     margin:0;
     padding:0;
 
-    background:#f0f0f0;
+    background:white;
 
     font-family:'Noto Sans Tamil', sans-serif;
 }}
@@ -272,24 +272,22 @@ body {{
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
 
-    padding:20px;
+    padding:0;
 }}
 
 .page {{
 
-    width:min(794px, 100%);
+    width:794px;
 
     min-height:1123px;
 
-    margin:auto;
+    margin:0 auto;
 
     background:white;
 
     position:relative;
 
     overflow:hidden;
-
-    box-shadow:0 0 15px rgba(0,0,0,0.15);
 }}
 
 .header {{
@@ -302,7 +300,7 @@ body {{
 
     height:{header_height}px;
 
-    padding:20px 35px;
+    padding:15px 25px;
 
     border-bottom:4px solid black;
 
@@ -315,7 +313,7 @@ body {{
 
     color:white;
 
-    padding:12px 22px;
+    padding:10px 20px;
 
     border-radius:6px;
 
@@ -328,9 +326,9 @@ body {{
 
 .content {{
 
-    padding:25px 35px;
+    padding:15px 20px;
 
-    line-height:1.8;
+    line-height:1.5;
 
     font-size:{content_font_size}px;
 
@@ -361,7 +359,7 @@ body {{
 
     background:linear-gradient(to right,#000,#555,#ddd);
 
-    padding:25px 35px;
+    padding:20px 25px;
 
     gap:20px;
 }}
@@ -386,7 +384,7 @@ body {{
 
     text-decoration:underline;
 
-    margin-bottom:20px;
+    margin-bottom:15px;
 
     word-break:break-word;
 }}
@@ -452,11 +450,6 @@ body {{
 
 @media screen and (max-width:768px) {{
 
-    body {{
-
-        padding:8px;
-    }}
-
     .page {{
 
         width:100%;
@@ -465,8 +458,6 @@ body {{
     }}
 
     .header {{
-
-        padding:20px 15px;
 
         flex-wrap:wrap;
 
@@ -482,13 +473,9 @@ body {{
 
         font-size:18px;
 
-        line-height:1.7;
-
         height:auto;
 
         min-height:450px;
-
-        padding:20px 15px;
     }}
 
     .footer {{
@@ -500,8 +487,6 @@ body {{
         flex-direction:column;
 
         align-items:flex-start;
-
-        padding:20px 15px;
     }}
 
     .profile-section {{
@@ -615,11 +600,11 @@ onclick="printPage()">
 
         <img
         src="data:image/png;base64,{focus_logo_base64}"
-        width="250">
+        width="220">
 
         <img
         src="data:image/png;base64,{club_logo_base64}"
-        width="150">
+        width="140">
 
         <div class="page-box">
 
