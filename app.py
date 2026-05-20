@@ -79,7 +79,7 @@ themes = {
 st.title("💼 Focus Investment Resume Maker")
 
 st.caption(
-    "Tamil + English Auto Flow Resume / Story Maker"
+    "Tamil + English Multi Page Resume / Story Maker"
 )
 
 # =========================================================
@@ -154,17 +154,44 @@ with col2:
         220
     )
 
+    content_height = st.slider(
+        "Content Height",
+        300,
+        900,
+        620
+    )
+
 theme = themes[theme_name]
 
 # =========================================================
-# CONTENT
+# PAGE 1 CONTENT
 # =========================================================
 
 st.markdown("---")
 
-content = st.text_area(
-    "Content",
-    height=500
+st.subheader("Page 1")
+
+page1_content = st.text_area(
+    "Page 1 Content",
+    height=300
+)
+
+# =========================================================
+# PAGE 2 CONTENT
+# =========================================================
+
+st.markdown("---")
+
+st.subheader("Page 2")
+
+page2_title = st.text_input(
+    "Page 2 Title",
+    value="Investment Journey"
+)
+
+page2_content = st.text_area(
+    "Page 2 Content",
+    height=250
 )
 
 # =========================================================
@@ -268,17 +295,28 @@ body {{
     padding:20px;
 }}
 
-.document {{
+.page {{
 
     width:min(794px, 100%);
+
+    min-height:1123px;
 
     margin:auto;
 
     background:white;
 
-    box-shadow:0 0 15px rgba(0,0,0,0.15);
+    position:relative;
 
     overflow:hidden;
+
+    box-shadow:0 0 15px rgba(0,0,0,0.15);
+
+    page-break-after:always;
+}}
+
+.second-page {{
+
+    margin-top:40px;
 }}
 
 .header {{
@@ -296,32 +334,36 @@ body {{
     border-bottom:4px solid black;
 
     gap:15px;
-
-    background:white;
-
-    position:sticky;
-
-    top:0;
 }}
 
 .content {{
 
-    padding:35px;
+    padding:25px 35px;
 
-    line-height:1.9;
+    line-height:1.8;
 
     font-size:{content_font_size}px;
+
+    height:{content_height}px;
+
+    overflow:hidden;
 
     background:{theme['secondary']};
 
     white-space:pre-wrap;
-
-    word-break:break-word;
 }}
 
 .footer {{
 
-    min-height:{footer_height}px;
+    position:absolute;
+
+    bottom:0;
+
+    left:0;
+
+    right:0;
+
+    height:{footer_height}px;
 
     display:flex;
 
@@ -364,6 +406,17 @@ body {{
     font-size:{duration_font_size}px;
 
     line-height:1.2;
+}}
+
+.page2-title {{
+
+    font-size:40px;
+
+    font-weight:bold;
+
+    margin-bottom:30px;
+
+    text-decoration:underline;
 }}
 
 .print-button {{
@@ -425,9 +478,11 @@ body {{
         padding:8px;
     }}
 
-    .document {{
+    .page {{
 
         width:100%;
+
+        min-height:auto;
     }}
 
     .header {{
@@ -435,8 +490,6 @@ body {{
         padding:20px 15px;
 
         flex-wrap:wrap;
-
-        height:auto;
     }}
 
     .header img {{
@@ -450,10 +503,18 @@ body {{
 
         line-height:1.7;
 
+        height:auto;
+
+        min-height:450px;
+
         padding:20px 15px;
     }}
 
     .footer {{
+
+        position:relative;
+
+        height:auto;
 
         flex-direction:column;
 
@@ -498,18 +559,15 @@ body {{
         display:none !important;
     }}
 
-    .document {{
+    .page {{
 
         width:794px !important;
+
+        min-height:1123px !important;
 
         margin:0 auto !important;
 
         box-shadow:none !important;
-    }}
-
-    .header {{
-
-        position:relative;
     }}
 }}
 
@@ -566,7 +624,9 @@ onclick="printPage()">
 
 </div>
 
-<div class="document">
+<!-- PAGE 1 -->
+
+<div class="page">
 
     <!-- HEADER -->
 
@@ -586,7 +646,7 @@ onclick="printPage()">
 
     <div class="content">
 
-        {content}
+        {page1_content}
 
     </div>
 
@@ -599,6 +659,66 @@ onclick="printPage()">
             {profile_html}
 
         </div>
+
+        <div class="details-section">
+
+            <div class="name">
+
+                {name}
+
+            </div>
+
+            <div class="duration">
+
+                {duration}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- PAGE 2 -->
+
+<div class="page second-page">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <img
+        src="data:image/png;base64,{focus_logo_base64}"
+        width="250">
+
+        <img
+        src="data:image/png;base64,{club_logo_base64}"
+        width="150">
+
+    </div>
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+        <div class="page2-title">
+
+            {page2_title}
+
+        </div>
+
+        <div>
+
+            {page2_content}
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
 
         <div class="details-section">
 
@@ -640,7 +760,7 @@ st.info(
 
 st.components.v1.html(
     preview_html,
-    height=1800,
+    height=2400,
     scrolling=True
 )
 
