@@ -632,17 +632,7 @@ st.components.v1.html(
 # SIDEBAR
 # =========================================================
 
-st.sidebar.title("Setup")
 
-st.sidebar.code("""
-
-pip install streamlit
-
-Run:
-
-python -m streamlit run app.py
-
-""")
 
 
 
