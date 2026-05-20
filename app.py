@@ -180,7 +180,6 @@ if uploaded_image:
     profile_html = f"""
 
     <img
-
     src="data:image/png;base64,{profile_base64}"
 
     style="
@@ -201,11 +200,11 @@ else:
     width:170px;
     height:170px;
     border-radius:50%;
-    background:#ccc;
+    background:#cccccc;
     display:flex;
     align-items:center;
     justify-content:center;
-    color:#666;
+    color:#666666;
     font-size:18px;
     ">
 
@@ -422,7 +421,7 @@ body {{
 
     background:white;
 
-    border:1px solid #ccc;
+    border:1px solid #cccccc;
 
     padding:12px;
 
@@ -437,25 +436,25 @@ body {{
     box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }}
 
-# =========================================================
-# MOBILE FIXES
-# =========================================================
+/* =====================================================
+   MOBILE FIXES
+===================================================== */
 
-@media screen and (max-width:768px) {
+@media screen and (max-width:768px) {{
 
-    html, body {
+    html, body {{
 
         overflow-x:hidden;
-    }
+    }}
 
-    .page {
+    .page {{
 
         width:100%;
 
         min-height:auto;
-    }
+    }}
 
-    .header {
+    .header {{
 
         flex-wrap:wrap;
 
@@ -466,30 +465,30 @@ body {{
         height:auto;
 
         padding:15px;
-    }
+    }}
 
-    .header img {
+    .header img {{
 
         max-width:110px;
-    }
+    }}
 
-    .page-box {
+    .page-box {{
 
         font-size:14px;
 
         padding:8px 14px;
-    }
+    }}
 
-    .content {
+    .content {{
 
         font-size:18px !important;
 
         line-height:1.6;
 
         padding:15px;
-    }
+    }}
 
-    .footer {
+    .footer {{
 
         flex-direction:column;
 
@@ -502,44 +501,44 @@ body {{
         padding:20px 15px;
 
         gap:15px;
-    }
+    }}
 
-    .profile-section {
+    .profile-section {{
 
         width:100%;
 
         display:flex;
 
         justify-content:center;
-    }
+    }}
 
-    .details-section {
+    .details-section {{
 
         width:100%;
 
         padding:0;
 
         text-align:center;
-    }
+    }}
 
-    .name {
+    .name {{
 
         font-size:28px !important;
 
         margin-bottom:10px;
-    }
+    }}
 
-    .duration {
+    .duration {{
 
         font-size:34px !important;
-    }
+    }}
 
-    .instructions {
+    .instructions {{
 
         display:none;
-    }
+    }}
 
-    .print-button {
+    .print-button {{
 
         top:10px;
 
@@ -548,25 +547,25 @@ body {{
         padding:10px 14px;
 
         font-size:14px;
-    }
-}
+    }}
+}}
 
-@media print {
+@media print {{
 
-    body {
+    body {{
 
         background:white !important;
 
         padding:0 !important;
-    }
+    }}
 
     .print-button,
-    .instructions {
+    .instructions {{
 
         display:none !important;
-    }
+    }}
 
-    .page {
+    .page {{
 
         width:794px !important;
 
@@ -577,14 +576,14 @@ body {{
         box-shadow:none !important;
 
         page-break-after:avoid !important;
-    }
-}
+    }}
+}}
 
 </style>
 
 <script>
 
-function printPage() {
+function printPage() {{
 
     const content = document.documentElement.outerHTML;
 
@@ -596,14 +595,14 @@ function printPage() {
 
     printWindow.document.close();
 
-    setTimeout(() => {
+    setTimeout(() => {{
 
         printWindow.focus();
 
         printWindow.print();
 
-    }, 500);
-}
+    }}, 500);
+}}
 
 </script>
 
