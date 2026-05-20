@@ -510,7 +510,7 @@ body {{
 
 <script>
 
-function printPage() {
+function printPage() {{
 
     const content = document.documentElement.outerHTML;
 
@@ -529,7 +529,7 @@ function printPage() {
         printWindow.print();
 
     }, 500);
-}
+}}
 
 </script>
 
