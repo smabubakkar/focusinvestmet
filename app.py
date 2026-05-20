@@ -142,6 +142,31 @@ with col2:
         52
     )
 
+    # =====================================================
+    # HEIGHT CONTROLS
+    # =====================================================
+
+    header_height = st.slider(
+        "Header Height",
+        80,
+        250,
+        140
+    )
+
+    footer_height = st.slider(
+        "Footer Height",
+        140,
+        450,
+        220
+    )
+
+    content_height = st.slider(
+        "Content Height",
+        300,
+        900,
+        620
+    )
+
 theme = themes[theme_name]
 
 intro = st.text_area(
@@ -275,7 +300,9 @@ body {{
 
     align-items:center;
 
-    padding:30px 35px 15px 35px;
+    height:{header_height}px;
+
+    padding:20px 35px;
 
     border-bottom:4px solid black;
 
@@ -307,7 +334,7 @@ body {{
 
     font-size:{content_font_size}px;
 
-    height:620px;
+    height:{content_height}px;
 
     overflow:hidden;
 
@@ -326,7 +353,7 @@ body {{
 
     right:0;
 
-    height:220px;
+    height:{footer_height}px;
 
     display:flex;
 
@@ -442,6 +469,8 @@ body {{
         padding:20px 15px;
 
         flex-wrap:wrap;
+
+        height:auto;
     }}
 
     .header img {{
@@ -665,7 +694,6 @@ st.components.v1.html(
 # =========================================================
 # SIDEBAR
 # =========================================================
-
 
 st.sidebar.title("PDF Tips")
 
