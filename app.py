@@ -76,10 +76,10 @@ themes = {
 # TITLE
 # =========================================================
 
-st.title("💼 Focus Investment Resume Maker")
+st.title("💼 Focus Investment One Pager")
 
 st.caption(
-    "Tamil + English Multi Page Resume / Story Maker"
+    "Tamil + English Resume / Story Maker"
 )
 
 # =========================================================
@@ -104,12 +104,18 @@ with col1:
         value="More than 5 Years"
     )
 
+    page_number = st.number_input(
+        "Page Number",
+        min_value=1,
+        value=1
+    )
+
+with col2:
+
     uploaded_image = st.file_uploader(
         "Upload Profile Image",
         type=["png", "jpg", "jpeg"]
     )
-
-with col2:
 
     # =====================================================
     # FONT SIZE CONTROLS
@@ -118,80 +124,29 @@ with col2:
     content_font_size = st.slider(
         "Content Font Size",
         14,
-        40,
+        36,
         24
     )
 
     name_font_size = st.slider(
         "Name Font Size",
         20,
-        70,
+        60,
         34
     )
 
     duration_font_size = st.slider(
         "Duration Font Size",
         24,
-        90,
-        52
-    )
-
-    # =====================================================
-    # HEIGHT CONTROLS
-    # =====================================================
-
-    header_height = st.slider(
-        "Header Height",
         80,
-        250,
-        140
-    )
-
-    footer_height = st.slider(
-        "Footer Height",
-        140,
-        450,
-        220
-    )
-
-    content_height = st.slider(
-        "Content Height",
-        300,
-        900,
-        620
+        52
     )
 
 theme = themes[theme_name]
 
-# =========================================================
-# PAGE 1 CONTENT
-# =========================================================
-
-st.markdown("---")
-
-st.subheader("Page 1")
-
-page1_content = st.text_area(
-    "Page 1 Content",
+intro = st.text_area(
+    "Introduction",
     height=300
-)
-
-# =========================================================
-# PAGE 2 CONTENT
-# =========================================================
-
-st.markdown("---")
-
-st.subheader("Page 2")
-
-page2_title = st.text_input(
-    "Page 2 Title",
-    value="Investment Journey"
-)
-
-page2_content = st.text_area(
-    "Page 2 Content",
-    height=250
 )
 
 # =========================================================
@@ -228,11 +183,11 @@ else:
     width:170px;
     height:170px;
     border-radius:50%;
-    background:#cccccc;
+    background:#ccc;
     display:flex;
     align-items:center;
     justify-content:center;
-    color:#666666;
+    color:#666;
     font-size:18px;
     ">
 
@@ -310,13 +265,6 @@ body {{
     overflow:hidden;
 
     box-shadow:0 0 15px rgba(0,0,0,0.15);
-
-    page-break-after:always;
-}}
-
-.second-page {{
-
-    margin-top:40px;
 }}
 
 .header {{
@@ -327,13 +275,28 @@ body {{
 
     align-items:center;
 
-    height:{header_height}px;
-
-    padding:20px 35px;
+    padding:30px 35px 15px 35px;
 
     border-bottom:4px solid black;
 
     gap:15px;
+}}
+
+.page-box {{
+
+    background:linear-gradient(to right,#000,#777,#eee);
+
+    color:white;
+
+    padding:12px 22px;
+
+    border-radius:6px;
+
+    font-weight:bold;
+
+    font-size:22px;
+
+    white-space:nowrap;
 }}
 
 .content {{
@@ -344,7 +307,7 @@ body {{
 
     font-size:{content_font_size}px;
 
-    height:{content_height}px;
+    height:620px;
 
     overflow:hidden;
 
@@ -363,7 +326,7 @@ body {{
 
     right:0;
 
-    height:{footer_height}px;
+    height:220px;
 
     display:flex;
 
@@ -408,17 +371,6 @@ body {{
     line-height:1.2;
 }}
 
-.page2-title {{
-
-    font-size:40px;
-
-    font-weight:bold;
-
-    margin-bottom:30px;
-
-    text-decoration:underline;
-}}
-
 .print-button {{
 
     position:fixed;
@@ -456,7 +408,7 @@ body {{
 
     background:white;
 
-    border:1px solid #cccccc;
+    border:1px solid #ccc;
 
     padding:12px;
 
@@ -568,6 +520,8 @@ body {{
         margin:0 auto !important;
 
         box-shadow:none !important;
+
+        page-break-after:avoid !important;
     }}
 }}
 
@@ -624,8 +578,6 @@ onclick="printPage()">
 
 </div>
 
-<!-- PAGE 1 -->
-
 <div class="page">
 
     <!-- HEADER -->
@@ -640,13 +592,19 @@ onclick="printPage()">
         src="data:image/png;base64,{club_logo_base64}"
         width="150">
 
+        <div class="page-box">
+
+            Page {page_number}
+
+        </div>
+
     </div>
 
     <!-- CONTENT -->
 
     <div class="content">
 
-        {page1_content}
+        {intro}
 
     </div>
 
@@ -659,66 +617,6 @@ onclick="printPage()">
             {profile_html}
 
         </div>
-
-        <div class="details-section">
-
-            <div class="name">
-
-                {name}
-
-            </div>
-
-            <div class="duration">
-
-                {duration}
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-<!-- PAGE 2 -->
-
-<div class="page second-page">
-
-    <!-- HEADER -->
-
-    <div class="header">
-
-        <img
-        src="data:image/png;base64,{focus_logo_base64}"
-        width="250">
-
-        <img
-        src="data:image/png;base64,{club_logo_base64}"
-        width="150">
-
-    </div>
-
-    <!-- CONTENT -->
-
-    <div class="content">
-
-        <div class="page2-title">
-
-            {page2_title}
-
-        </div>
-
-        <div>
-
-            {page2_content}
-
-        </div>
-
-    </div>
-
-    <!-- FOOTER -->
-
-    <div class="footer">
 
         <div class="details-section">
 
@@ -760,7 +658,7 @@ st.info(
 
 st.components.v1.html(
     preview_html,
-    height=2400,
+    height=1250,
     scrolling=True
 )
 
@@ -768,28 +666,6 @@ st.components.v1.html(
 # SIDEBAR
 # =========================================================
 
-st.sidebar.title("Setup")
-
-st.sidebar.code("""
-
-pip install streamlit
-
-Run:
-
-python -m streamlit run app.py
-
-""")
-
-st.sidebar.title("Required Assets")
-
-st.sidebar.write("""
-
-Inside assets folder:
-
-1. focus_logo.png
-2. 100cr_logo.png
-
-""")
 
 st.sidebar.title("PDF Tips")
 
