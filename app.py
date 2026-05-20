@@ -160,13 +160,6 @@ with col2:
         220
     )
 
-    content_height = st.slider(
-        "Content Height",
-        300,
-        900,
-        620
-    )
-
 theme = themes[theme_name]
 
 intro = st.text_area(
@@ -285,7 +278,9 @@ body {{
 
     background:white;
 
-    position:relative;
+    display:flex;
+
+    flex-direction:column;
 
     overflow:hidden;
 }}
@@ -332,26 +327,20 @@ body {{
 
     font-size:{content_font_size}px;
 
-    height:{content_height}px;
-
-    overflow:hidden;
+    min-height:300px;
 
     background:{theme['secondary']};
 
     white-space:pre-wrap;
+
+    word-break:break-word;
 }}
 
 .footer {{
 
-    position:absolute;
+    margin-top:auto;
 
-    bottom:0;
-
-    left:0;
-
-    right:0;
-
-    height:{footer_height}px;
+    min-height:{footer_height}px;
 
     display:flex;
 
@@ -448,84 +437,136 @@ body {{
     box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }}
 
-@media screen and (max-width:768px) {{
+# =========================================================
+# MOBILE FIXES
+# =========================================================
 
-    .page {{
+@media screen and (max-width:768px) {
+
+    html, body {
+
+        overflow-x:hidden;
+    }
+
+    .page {
 
         width:100%;
 
         min-height:auto;
-    }}
+    }
 
-    .header {{
+    .header {
 
         flex-wrap:wrap;
 
-        height:auto;
-    }}
+        justify-content:center;
 
-    .header img {{
-
-        max-width:120px;
-    }}
-
-    .content {{
-
-        font-size:18px;
+        text-align:center;
 
         height:auto;
 
-        min-height:450px;
-    }}
+        padding:15px;
+    }
 
-    .footer {{
+    .header img {
 
-        position:relative;
+        max-width:110px;
+    }
 
-        height:auto;
+    .page-box {
+
+        font-size:14px;
+
+        padding:8px 14px;
+    }
+
+    .content {
+
+        font-size:18px !important;
+
+        line-height:1.6;
+
+        padding:15px;
+    }
+
+    .footer {
 
         flex-direction:column;
 
-        align-items:flex-start;
-    }}
+        align-items:center;
 
-    .profile-section {{
+        justify-content:center;
+
+        text-align:center;
+
+        padding:20px 15px;
+
+        gap:15px;
+    }
+
+    .profile-section {
 
         width:100%;
-    }}
 
-    .instructions {{
+        display:flex;
+
+        justify-content:center;
+    }
+
+    .details-section {
+
+        width:100%;
+
+        padding:0;
+
+        text-align:center;
+    }
+
+    .name {
+
+        font-size:28px !important;
+
+        margin-bottom:10px;
+    }
+
+    .duration {
+
+        font-size:34px !important;
+    }
+
+    .instructions {
 
         display:none;
-    }}
+    }
 
-    .print-button {{
+    .print-button {
 
         top:10px;
+
         right:10px;
 
-        padding:10px 16px;
+        padding:10px 14px;
 
         font-size:14px;
-    }}
-}}
+    }
+}
 
-@media print {{
+@media print {
 
-    body {{
+    body {
 
         background:white !important;
 
         padding:0 !important;
-    }}
+    }
 
     .print-button,
-    .instructions {{
+    .instructions {
 
         display:none !important;
-    }}
+    }
 
-    .page {{
+    .page {
 
         width:794px !important;
 
@@ -536,14 +577,14 @@ body {{
         box-shadow:none !important;
 
         page-break-after:avoid !important;
-    }}
-}}
+    }
+}
 
 </style>
 
 <script>
 
-function printPage() {{
+function printPage() {
 
     const content = document.documentElement.outerHTML;
 
@@ -555,14 +596,14 @@ function printPage() {{
 
     printWindow.document.close();
 
-    setTimeout(() => {{
+    setTimeout(() => {
 
         printWindow.focus();
 
         printWindow.print();
 
-    }}, 500);
-}}
+    }, 500);
+}
 
 </script>
 
@@ -672,7 +713,7 @@ st.info(
 
 st.components.v1.html(
     preview_html,
-    height=1250,
+    height=1300,
     scrolling=True
 )
 
