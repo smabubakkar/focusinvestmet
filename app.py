@@ -1,340 +1,804 @@
 # app.py
 
 import streamlit as st
-from PIL import Image
-from io import BytesIO
-import tempfile
-import os
+import base64
 
-from reportlab.platypus import (
-    SimpleDocTemplate,
-    Paragraph,
-    Spacer,
-    Image as RLImage,
-    Table,
-    TableStyle
-)
-
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER
-from reportlab.lib import colors
-from reportlab.lib.units import inch
-
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-
-# =========================================
+# =========================================================
 # PAGE CONFIG
-# =========================================
+# =========================================================
 
 st.set_page_config(
     page_title="Focus Investment Resume Maker",
-    layout="centered"
+    layout="wide"
 )
 
-# =========================================
-# TAMIL FONT SETUP
-# =========================================
+# =========================================================
+# FUNCTIONS
+# =========================================================
 
-# Download and keep this font in same folder:
-# https://github.com/googlefonts/noto-fonts/blob/main/hinted/ttf/NotoSansTamil/NotoSansTamil-Regular.ttf
+def image_to_base64(image_file):
 
-FONT_NAME = "Tamil"
+    if image_file is None:
+        return ""
 
-if os.path.exists("NotoSansTamil-Regular.ttf"):
-    pdfmetrics.registerFont(
-        TTFont(FONT_NAME, "NotoSansTamil-Regular.ttf")
-    )
-else:
-    FONT_NAME = "Helvetica"
+    image_file.seek(0)
 
-# =========================================
+    return base64.b64encode(
+        image_file.read()
+    ).decode()
+
+
+def local_image_to_base64(path):
+
+    with open(path, "rb") as f:
+
+        return base64.b64encode(
+            f.read()
+        ).decode()
+
+# =========================================================
+# LOAD LOGOS
+# =========================================================
+
+focus_logo_base64 = local_image_to_base64(
+    "assets/focus_logo.png"
+)
+
+club_logo_base64 = local_image_to_base64(
+    "assets/100cr_logo.png"
+)
+
+# =========================================================
 # THEMES
-# =========================================
+# =========================================================
 
 themes = {
+
     "Classic Black": {
-        "primary": colors.black,
-        "secondary": colors.HexColor("#F3F3F3"),
-        "text": colors.black,
-        "header_text": colors.white
+        "secondary": "#f5f5f5"
     },
 
     "Royal Blue": {
-        "primary": colors.HexColor("#0B3D91"),
-        "secondary": colors.HexColor("#EAF1FF"),
-        "text": colors.black,
-        "header_text": colors.white
+        "secondary": "#EDF4FF"
     },
 
     "Emerald Green": {
-        "primary": colors.HexColor("#006B4F"),
-        "secondary": colors.HexColor("#E9FFF6"),
-        "text": colors.black,
-        "header_text": colors.white
+        "secondary": "#EFFFF7"
     },
 
     "Luxury Gold": {
-        "primary": colors.HexColor("#B8860B"),
-        "secondary": colors.HexColor("#FFF8E1"),
-        "text": colors.black,
-        "header_text": colors.black
+        "secondary": "#FFF8E1"
     }
+
 }
 
-# =========================================
-# UI
-# =========================================
+# =========================================================
+# TITLE
+# =========================================================
 
-st.title("📄 Focus Investment One Pager")
+st.title("💼 Focus Investment Resume Maker")
 
-theme_choice = st.selectbox(
-    "Choose Theme",
-    list(themes.keys())
+st.caption(
+    "Tamil + English Multi Page Resume / Story Maker"
 )
 
-selected_theme = themes[theme_choice]
+# =========================================================
+# INPUTS
+# =========================================================
 
-community = st.text_input(
-    "Community Name",
-    value="FOCUS INVESTMENT"
-)
-
-name = st.text_input("Your Name")
-
-dob = st.date_input("Date of Birth")
-
-intro = st.text_area(
-    "Introduction (Tamil + English Supported)",
-    height=220,
-    placeholder="உங்களை பற்றிய சிறிய அறிமுகம்..."
-)
-
-uploaded_image = st.file_uploader(
-    "Upload Your Photo",
-    type=["png", "jpg", "jpeg"]
-)
-
-# =========================================
-# LIVE PREVIEW
-# =========================================
-
-st.markdown("---")
-st.subheader("Live Preview")
-
-preview_bg = selected_theme["secondary"].hexval()
-
-st.markdown(
-    f"""
-    <div style="
-        background-color:{preview_bg};
-        padding:20px;
-        border-radius:15px;
-        border:2px solid #DDD;
-    ">
-    <h1>{community}</h1>
-    <hr>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-col1, col2 = st.columns([1, 2])
+col1, col2 = st.columns(2)
 
 with col1:
-    if uploaded_image:
-        st.image(uploaded_image, width=180)
+
+    theme_name = st.selectbox(
+        "Choose Theme",
+        list(themes.keys())
+    )
+
+    name = st.text_input(
+        "Name"
+    )
+
+    duration = st.text_input(
+        "Experience / Duration",
+        value="More than 5 Years"
+    )
+
+    uploaded_image = st.file_uploader(
+        "Upload Profile Image",
+        type=["png", "jpg", "jpeg"]
+    )
 
 with col2:
-    st.markdown(f"## {name}")
-    st.write(f"**DOB:** {dob}")
-    st.write(intro)
 
-# =========================================
-# PDF FUNCTION
-# =========================================
+    # =====================================================
+    # FONT SIZE CONTROLS
+    # =====================================================
 
-def generate_pdf():
-
-    buffer = BytesIO()
-
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=A4,
-        rightMargin=30,
-        leftMargin=30,
-        topMargin=30,
-        bottomMargin=30
+    content_font_size = st.slider(
+        "Content Font Size",
+        14,
+        40,
+        24
     )
 
-    styles = getSampleStyleSheet()
-
-    title_style = ParagraphStyle(
-        "title_style",
-        parent=styles['Title'],
-        fontName=FONT_NAME,
-        fontSize=28,
-        textColor=selected_theme["header_text"],
-        alignment=TA_CENTER,
-        spaceAfter=20
+    name_font_size = st.slider(
+        "Name Font Size",
+        20,
+        70,
+        34
     )
 
-    body_style = ParagraphStyle(
-        "body_style",
-        parent=styles['BodyText'],
-        fontName=FONT_NAME,
-        fontSize=13,
-        leading=22,
-        textColor=selected_theme["text"]
+    duration_font_size = st.slider(
+        "Duration Font Size",
+        24,
+        90,
+        52
     )
 
-    name_style = ParagraphStyle(
-        "name_style",
-        parent=styles['Heading1'],
-        fontName=FONT_NAME,
-        fontSize=24,
-        textColor=selected_theme["text"]
+    # =====================================================
+    # HEIGHT CONTROLS
+    # =====================================================
+
+    header_height = st.slider(
+        "Header Height",
+        80,
+        250,
+        140
     )
 
-    elements = []
-
-    # =====================================
-    # HEADER
-    # =====================================
-
-    header_table = Table(
-        [[Paragraph(community, title_style)]],
-        colWidths=[7.2 * inch]
+    footer_height = st.slider(
+        "Footer Height",
+        140,
+        450,
+        220
     )
 
-    header_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), selected_theme["primary"]),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 18),
-        ('TOPPADDING', (0, 0), (-1, -1), 18),
-    ]))
-
-    elements.append(header_table)
-    elements.append(Spacer(1, 0.3 * inch))
-
-    # =====================================
-    # IMAGE
-    # =====================================
-
-    image_path = None
-
-    if uploaded_image:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-            tmp.write(uploaded_image.getvalue())
-            image_path = tmp.name
-
-    left_side = []
-    right_side = []
-
-    if image_path:
-        img = RLImage(
-            image_path,
-            width=2.4 * inch,
-            height=3 * inch
-        )
-        left_side.append(img)
-
-    # =====================================
-    # CONTENT
-    # =====================================
-
-    content = f"""
-    <b>{name}</b><br/><br/>
-    <b>Date of Birth:</b> {dob}<br/><br/>
-    {intro}
-    """
-
-    right_side.append(
-        Paragraph(content, body_style)
+    content_height = st.slider(
+        "Content Height",
+        300,
+        900,
+        620
     )
 
-    profile_table = Table(
-        [[left_side, right_side]],
-        colWidths=[2.6 * inch, 4.3 * inch]
-    )
+theme = themes[theme_name]
 
-    profile_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), selected_theme["secondary"]),
-        ('BOX', (0, 0), (-1, -1), 2, selected_theme["primary"]),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-
-        ('LEFTPADDING', (0, 0), (-1, -1), 15),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 15),
-        ('TOPPADDING', (0, 0), (-1, -1), 15),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
-    ]))
-
-    elements.append(profile_table)
-
-    # =====================================
-    # FOOTER
-    # =====================================
-
-    elements.append(Spacer(1, 0.4 * inch))
-
-    footer = Paragraph(
-        "Focus Investment Community",
-        body_style
-    )
-
-    elements.append(footer)
-
-    # =====================================
-    # BUILD PDF
-    # =====================================
-
-    doc.build(elements)
-
-    pdf = buffer.getvalue()
-    buffer.close()
-
-    if image_path and os.path.exists(image_path):
-        os.remove(image_path)
-
-    return pdf
-
-# =========================================
-# DOWNLOAD
-# =========================================
+# =========================================================
+# PAGE 1 CONTENT
+# =========================================================
 
 st.markdown("---")
 
-if st.button("Generate PDF"):
+st.subheader("Page 1")
 
-    if not name or not intro:
-        st.error("Please fill mandatory fields")
-    else:
-
-        pdf = generate_pdf()
-
-        st.success("PDF Generated Successfully")
-
-        st.download_button(
-            label="📥 Download PDF",
-            data=pdf,
-            file_name=f"{name}_focus_resume.pdf",
-            mime="application/pdf"
-        )
-
-# =========================================
-# SIDEBAR INFO
-# =========================================
-
-st.sidebar.title("Tamil Font Setup")
-
-st.sidebar.code(
-"""
-1. Download Tamil Font:
-NotoSansTamil-Regular.ttf
-
-2. Keep it beside app.py
-
-3. Run:
-streamlit run app.py
-"""
+page1_content = st.text_area(
+    "Page 1 Content",
+    height=300
 )
+
+# =========================================================
+# PAGE 2 CONTENT
+# =========================================================
+
+st.markdown("---")
+
+st.subheader("Page 2")
+
+page2_title = st.text_input(
+    "Page 2 Title",
+    value="Investment Journey"
+)
+
+page2_content = st.text_area(
+    "Page 2 Content",
+    height=250
+)
+
+# =========================================================
+# PROFILE IMAGE
+# =========================================================
+
+if uploaded_image:
+
+    profile_base64 = image_to_base64(
+        uploaded_image
+    )
+
+    profile_html = f"""
+
+    <img
+
+    src="data:image/png;base64,{profile_base64}"
+
+    style="
+    width:170px;
+    height:170px;
+    border-radius:50%;
+    border:6px solid white;
+    object-fit:cover;
+    ">
+
+    """
+
+else:
+
+    profile_html = """
+
+    <div style="
+    width:170px;
+    height:170px;
+    border-radius:50%;
+    background:#cccccc;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#666666;
+    font-size:18px;
+    ">
+
+    No Image
+
+    </div>
+
+    """
+
+# =========================================================
+# HTML TEMPLATE
+# =========================================================
+
+preview_html = f"""
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&display=swap"
+rel="stylesheet">
+
+<style>
+
+@page {{
+
+    size:A4;
+    margin:0;
+}}
+
+* {{
+
+    box-sizing:border-box;
+}}
+
+html, body {{
+
+    margin:0;
+    padding:0;
+
+    background:#f0f0f0;
+
+    font-family:'Noto Sans Tamil', sans-serif;
+}}
+
+body {{
+
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+
+    padding:20px;
+}}
+
+.page {{
+
+    width:min(794px, 100%);
+
+    min-height:1123px;
+
+    margin:auto;
+
+    background:white;
+
+    position:relative;
+
+    overflow:hidden;
+
+    box-shadow:0 0 15px rgba(0,0,0,0.15);
+
+    page-break-after:always;
+}}
+
+.second-page {{
+
+    margin-top:40px;
+}}
+
+.header {{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    height:{header_height}px;
+
+    padding:20px 35px;
+
+    border-bottom:4px solid black;
+
+    gap:15px;
+}}
+
+.content {{
+
+    padding:25px 35px;
+
+    line-height:1.8;
+
+    font-size:{content_font_size}px;
+
+    height:{content_height}px;
+
+    overflow:hidden;
+
+    background:{theme['secondary']};
+
+    white-space:pre-wrap;
+}}
+
+.footer {{
+
+    position:absolute;
+
+    bottom:0;
+
+    left:0;
+
+    right:0;
+
+    height:{footer_height}px;
+
+    display:flex;
+
+    align-items:center;
+
+    background:linear-gradient(to right,#000,#555,#ddd);
+
+    padding:25px 35px;
+
+    gap:20px;
+}}
+
+.profile-section {{
+
+    width:220px;
+}}
+
+.details-section {{
+
+    flex:1;
+
+    color:white;
+}}
+
+.name {{
+
+    font-size:{name_font_size}px;
+
+    font-weight:bold;
+
+    text-decoration:underline;
+
+    margin-bottom:20px;
+
+    word-break:break-word;
+}}
+
+.duration {{
+
+    font-size:{duration_font_size}px;
+
+    line-height:1.2;
+}}
+
+.page2-title {{
+
+    font-size:40px;
+
+    font-weight:bold;
+
+    margin-bottom:30px;
+
+    text-decoration:underline;
+}}
+
+.print-button {{
+
+    position:fixed;
+
+    top:20px;
+
+    right:20px;
+
+    z-index:9999;
+
+    background:black;
+
+    color:white;
+
+    border:none;
+
+    padding:14px 24px;
+
+    border-radius:10px;
+
+    font-size:18px;
+
+    cursor:pointer;
+}}
+
+.instructions {{
+
+    position:fixed;
+
+    top:90px;
+
+    right:20px;
+
+    z-index:9999;
+
+    background:white;
+
+    border:1px solid #cccccc;
+
+    padding:12px;
+
+    border-radius:8px;
+
+    font-size:14px;
+
+    width:240px;
+
+    line-height:1.6;
+
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}}
+
+@media screen and (max-width:768px) {{
+
+    body {{
+
+        padding:8px;
+    }}
+
+    .page {{
+
+        width:100%;
+
+        min-height:auto;
+    }}
+
+    .header {{
+
+        padding:20px 15px;
+
+        flex-wrap:wrap;
+    }}
+
+    .header img {{
+
+        max-width:120px;
+    }}
+
+    .content {{
+
+        font-size:18px;
+
+        line-height:1.7;
+
+        height:auto;
+
+        min-height:450px;
+
+        padding:20px 15px;
+    }}
+
+    .footer {{
+
+        position:relative;
+
+        height:auto;
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+        padding:20px 15px;
+    }}
+
+    .profile-section {{
+
+        width:100%;
+    }}
+
+    .instructions {{
+
+        display:none;
+    }}
+
+    .print-button {{
+
+        top:10px;
+        right:10px;
+
+        padding:10px 16px;
+
+        font-size:14px;
+    }}
+}}
+
+@media print {{
+
+    body {{
+
+        background:white !important;
+
+        padding:0 !important;
+    }}
+
+    .print-button,
+    .instructions {{
+
+        display:none !important;
+    }}
+
+    .page {{
+
+        width:794px !important;
+
+        min-height:1123px !important;
+
+        margin:0 auto !important;
+
+        box-shadow:none !important;
+    }}
+}}
+
+</style>
+
+<script>
+
+function printPage() {{
+
+    const content = document.documentElement.outerHTML;
+
+    const printWindow = window.open('', '_blank');
+
+    printWindow.document.open();
+
+    printWindow.document.write(content);
+
+    printWindow.document.close();
+
+    setTimeout(() => {{
+
+        printWindow.focus();
+
+        printWindow.print();
+
+    }}, 500);
+}}
+
+</script>
+
+</head>
+
+<body>
+
+<button
+class="print-button"
+onclick="printPage()">
+
+🖨 Save PDF
+
+</button>
+
+<div class="instructions">
+
+<b>Chrome Print Settings</b>
+
+<br><br>
+
+❌ Disable Headers & Footers
+
+<br>
+
+✅ Enable Background Graphics
+
+</div>
+
+<!-- PAGE 1 -->
+
+<div class="page">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <img
+        src="data:image/png;base64,{focus_logo_base64}"
+        width="250">
+
+        <img
+        src="data:image/png;base64,{club_logo_base64}"
+        width="150">
+
+    </div>
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+        {page1_content}
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        <div class="profile-section">
+
+            {profile_html}
+
+        </div>
+
+        <div class="details-section">
+
+            <div class="name">
+
+                {name}
+
+            </div>
+
+            <div class="duration">
+
+                {duration}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- PAGE 2 -->
+
+<div class="page second-page">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <img
+        src="data:image/png;base64,{focus_logo_base64}"
+        width="250">
+
+        <img
+        src="data:image/png;base64,{club_logo_base64}"
+        width="150">
+
+    </div>
+
+    <!-- CONTENT -->
+
+    <div class="content">
+
+        <div class="page2-title">
+
+            {page2_title}
+
+        </div>
+
+        <div>
+
+            {page2_content}
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        <div class="details-section">
+
+            <div class="name">
+
+                {name}
+
+            </div>
+
+            <div class="duration">
+
+                {duration}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
+
+"""
+
+# =========================================================
+# PREVIEW
+# =========================================================
+
+st.markdown("---")
+
+st.subheader("Preview")
+
+st.info(
+    "Use Chrome → Print → Save as PDF"
+)
+
+st.components.v1.html(
+    preview_html,
+    height=2400,
+    scrolling=True
+)
+
+# =========================================================
+# SIDEBAR
+# =========================================================
+
+st.sidebar.title("Setup")
+
+st.sidebar.code("""
+
+pip install streamlit
+
+Run:
+
+python -m streamlit run app.py
+
+""")
+
+st.sidebar.title("Required Assets")
+
+st.sidebar.write("""
+
+Inside assets folder:
+
+1. focus_logo.png
+2. 100cr_logo.png
+
+""")
+
+st.sidebar.title("PDF Tips")
+
+st.sidebar.write("""
+
+In Chrome Print:
+
+❌ Disable Headers & Footers
+
+✅ Enable Background Graphics
+
+""")
