@@ -155,7 +155,7 @@ with col2:
 
     footer_height = st.slider(
         "Footer Height",
-        140,
+        120,
         450,
         220
     )
