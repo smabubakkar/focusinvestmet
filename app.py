@@ -155,9 +155,27 @@ with col2:
 
     footer_height = st.slider(
         "Footer Height",
-        120,
+        140,
         450,
         220
+    )
+
+    # =====================================================
+    # CONTENT POSITION CONTROLS
+    # =====================================================
+
+    content_left_padding = st.slider(
+        "Content Left Spacing",
+        0,
+        150,
+        20
+    )
+
+    content_top_padding = st.slider(
+        "Content Top Spacing",
+        0,
+        100,
+        8
     )
 
 theme = themes[theme_name]
@@ -172,6 +190,8 @@ intro = st.text_area(
 )
 
 # Remove ONLY accidental first newline
+
+
 
 # =========================================================
 # PROFILE IMAGE
@@ -326,7 +346,11 @@ body {{
 
 .content {{
 
-    padding:8px 20px 15px 20px;
+    padding:
+    {content_top_padding}px
+    20px
+    15px
+    {content_left_padding}px;
 
     line-height:1.5;
 
