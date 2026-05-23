@@ -106,7 +106,7 @@ with col1:
 
     page_number = st.number_input(
         "Page Number",
-        min_value=1,
+        min_value=0,
         value=1
     )
 
@@ -123,22 +123,22 @@ with col2:
 
     content_font_size = st.slider(
         "Content Font Size",
-        14,
-        36,
+        0,
+        60,
         22
     )
 
     name_font_size = st.slider(
         "Name Font Size",
-        20,
-        60,
+        0,
+        100,
         34
     )
 
     duration_font_size = st.slider(
         "Duration Font Size",
-        24,
-        80,
+        0,
+        120,
         52
     )
 
@@ -148,15 +148,15 @@ with col2:
 
     header_height = st.slider(
         "Header Height",
-        80,
-        250,
+        0,
+        400,
         120
     )
 
     footer_height = st.slider(
         "Footer Height",
-        140,
-        450,
+        0,
+        500,
         220
     )
 
@@ -167,15 +167,29 @@ with col2:
     content_left_padding = st.slider(
         "Content Left Spacing",
         0,
-        150,
+        200,
+        20
+    )
+
+    content_right_padding = st.slider(
+        "Content Right Spacing",
+        0,
+        200,
         20
     )
 
     content_top_padding = st.slider(
         "Content Top Spacing",
         0,
-        100,
+        200,
         8
+    )
+
+    content_bottom_padding = st.slider(
+        "Content Bottom Spacing",
+        0,
+        200,
+        15
     )
 
 theme = themes[theme_name]
@@ -191,7 +205,9 @@ intro = st.text_area(
 
 # Remove ONLY accidental first newline
 
+if intro.startswith("\n"):
 
+    intro = intro[1:]
 
 # =========================================================
 # PROFILE IMAGE
@@ -348,8 +364,8 @@ body {{
 
     padding:
     {content_top_padding}px
-    20px
-    15px
+    {content_right_padding}px
+    {content_bottom_padding}px
     {content_left_padding}px;
 
     line-height:1.5;
