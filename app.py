@@ -1,41 +1,43 @@
 import streamlit as st
 import base64
 import html
-from pathlib import Path
 
 st.set_page_config(page_title="Focus Investment Profile Maker", page_icon="🎯", layout="wide")
-ASSETS = Path(__file__).parent / "assets"
+
 
 def b64(data):
     return base64.b64encode(data).decode("utf-8") if data else ""
 
-def local_img(filename):
-    path = ASSETS / filename
-    if not path.exists():
-        return ""
-    ext = path.suffix.lower()
-    mime = "image/jpeg" if ext in (".jpg", ".jpeg") else "image/png"
-    return f"data:{mime};base64,{b64(path.read_bytes())}"
 
 def upload_img(file):
     return f"data:{file.type or 'image/png'};base64,{b64(file.getvalue())}" if file else ""
 
+
 def esc(value):
     return html.escape(str(value or ""), quote=True)
+
 
 def make_block(kind, block_id):
     return {
         "id": block_id, "type": kind, "text": "", "heading": "",
         "image": None, "width": 70, "align": "center",
         "font_size": 22, "color": "#111111",
-        "heading_color": "#111111", "background": "transparent"
+        "heading_color": "#111111", "background": "#FFFFFF",
+        "use_default": True, "custom_bg": False,
     }
+
 
 if "blocks" not in st.session_state:
     st.session_state.blocks = [make_block("text", 1)]
     st.session_state.next_id = 2
 if "next_id" not in st.session_state:
     st.session_state.next_id = 2
+# Upgrade blocks created by an older version of the app in the same session.
+for _b in st.session_state.blocks:
+    _b.setdefault("use_default", True)
+    _b.setdefault("custom_bg", False)
+    if not str(_b.get("background", "")).startswith("#"):
+        _b["background"] = "#FFFFFF"
 
 st.title("🎯 Focus Investment – Profile / Story Maker")
 st.caption("Tamil + English community profile maker. Add text, headings and photos anywhere in the content.")
@@ -60,19 +62,19 @@ theme_bg = {
 
 st.divider()
 st.subheader("Header and footer settings")
-h1, h2, h3 = st.columns(3)
+h1, h2 = st.columns(2)
 with h1:
-    header_height = st.slider("Header height (px)", 0, 300, 120)
+    header_height = st.slider("Header height (px)", 0, 300, 60,
+                              help="Set to 0 to hide the header (page label and divider).")
     header_padding = st.slider("Header left/right padding (px)", 0, 100, 25)
+    page_label_size = st.slider("Page label font size (px)", 0, 40, 16)
 with h2:
     footer_height = st.slider("Footer height (px)", 0, 500, 220)
     footer_padding = st.slider("Footer padding (px)", 0, 100, 20)
-with h3:
-    focus_logo_width = st.slider("Focus logo width (px)", 0, 300, 220)
-    club_logo_width = st.slider("100CR logo width (px)", 0, 250, 140)
 
 st.divider()
 st.subheader("Content default appearance")
+st.caption("Blocks with “Use default text style” ticked follow these settings.")
 c1, c2, c3 = st.columns(3)
 with c1:
     default_font_size = st.slider("Default text size (px)", 0, 60, 22)
@@ -148,15 +150,26 @@ for i, block in enumerate(st.session_state.blocks):
                                               index=["left", "center", "right"].index(block["align"]), key=f"align_{bid}")
 
         if block["type"] in ("text", "heading"):
+            s1, s2 = st.columns(2)
+            with s1:
+                block["use_default"] = st.checkbox("Use default text style", value=block["use_default"],
+                                                   key=f"usedef_{bid}")
+            with s2:
+                block["custom_bg"] = st.checkbox("Custom block background", value=block["custom_bg"],
+                                                 key=f"custombg_{bid}")
             q1, q2, q3 = st.columns(3)
             with q1:
-                block["font_size"] = st.slider("Block text size (px)", 0, 60, int(block["font_size"]), key=f"size_{bid}")
+                block["font_size"] = st.slider("Block text size (px)", 0, 60, int(block["font_size"]),
+                                               key=f"size_{bid}", disabled=block["use_default"])
             with q2:
-                block["color"] = st.color_picker("Text colour", block["color"], key=f"colour_{bid}")
+                block["color"] = st.color_picker("Text colour", block["color"], key=f"colour_{bid}",
+                                                 disabled=block["use_default"])
             with q3:
-                block["background"] = st.color_picker("Block background", "#FFFFFF", key=f"background_{bid}")
+                block["background"] = st.color_picker("Block background", block["background"],
+                                                      key=f"background_{bid}", disabled=not block["custom_bg"])
             if block["type"] == "heading":
-                block["heading_color"] = st.color_picker("Heading colour", block["heading_color"], key=f"hcolour_{bid}")
+                block["heading_color"] = st.color_picker("Heading colour", block["heading_color"],
+                                                         key=f"hcolour_{bid}", disabled=block["use_default"])
 
 st.divider()
 st.subheader("Footer appearance")
@@ -167,8 +180,23 @@ with f2:
     footer_end = st.color_picker("Footer gradient end", "#DDDDDD")
 with f3:
     footer_text = st.color_picker("Footer text colour", "#FFFFFF")
-name_size = st.slider("Name font size (px)", 0, 100, 34)
-highlight_size = st.slider("Highlight font size (px)", 0, 120, 52)
+n1, n2 = st.columns(2)
+with n1:
+    name_size = st.slider("Name font size (px)", 0, 100, 34)
+with n2:
+    highlight_size = st.slider("Highlight font size (px)", 0, 120, 52)
+
+
+def block_style(block):
+    """Resolve per-block style, falling back to the content defaults."""
+    if block.get("use_default", True):
+        size, color, hcolor = default_font_size, default_text_color, default_heading_color
+    else:
+        size, color, hcolor = int(block["font_size"]), block["color"], block["heading_color"]
+    bg = block["background"] if block.get("custom_bg") else "transparent"
+    pad = "padding:10px 12px;border-radius:6px;" if block.get("custom_bg") else ""
+    return size, color, hcolor, bg, pad
+
 
 # Build HTML blocks in the same order as the editor.
 parts = []
@@ -177,86 +205,95 @@ for block in st.session_state.blocks:
     if kind == "text":
         value = esc(block["text"])
         if value:
+            size, color, _, bg, pad = block_style(block)
             parts.append(
-                f'<div class="content-block" style="font-size:{int(block["font_size"])}px;'
-                f'color:{block["color"]};background:{block["background"]};">{value}</div>'
+                f'<div class="content-block" style="font-size:{size}px;'
+                f'color:{color};background:{bg};{pad}">{value}</div>'
             )
     elif kind == "heading":
         heading = esc(block["heading"])
         supporting = esc(block["text"])
         if heading or supporting:
-            heading_html = (f'<h2 style="font-size:{int(block["font_size"])}px;color:{block["heading_color"]};">'
+            size, color, hcolor, bg, pad = block_style(block)
+            heading_html = (f'<h2 style="font-size:{size}px;color:{hcolor};">'
                             f'{heading}</h2>') if heading else ""
-            supporting_html = (f'<div class="supporting" style="font-size:{int(block["font_size"])}px;'
-                               f'color:{block["color"]};">{supporting}</div>') if supporting else ""
-            parts.append(f'<section class="content-block" style="background:{block["background"]};">'
+            supporting_html = (f'<div class="supporting" style="font-size:{size}px;'
+                               f'color:{color};">{supporting}</div>') if supporting else ""
+            parts.append(f'<section class="content-block" style="background:{bg};{pad}">'
                          f'{heading_html}{supporting_html}</section>')
     elif kind == "image" and block["image"] is not None:
         src = upload_img(block["image"])
         parts.append(
             f'<div class="photo-block" style="text-align:{block["align"]};">'
-            f'<img src="{src}" style="width:{int(block["width"])}%;max-width:100%;height:auto;"></div>'
+            f'<img src="{src}" alt="" style="width:{int(block["width"])}%;max-width:100%;height:auto;"></div>'
         )
 
 content_html = "\n".join(parts)
-focus_logo = local_img("focus_logo.png")
-club_logo = local_img("100cr_logo.png")
 profile_src = upload_img(profile_file)
 
-def logo(uri, width, alt):
-    return f'<img class="logo" src="{uri}" style="width:{width}px;" alt="{esc(alt)}">' if uri and width > 0 else ""
-
-if profile_src and profile_size > 0:
-    profile_html = (f'<img class="profile" src="{profile_src}" '
+if profile_size <= 0:
+    profile_html = ""
+elif profile_src:
+    profile_html = (f'<img class="profile" src="{profile_src}" alt="" '
                     f'style="width:{profile_size}px;height:{profile_size}px;border:{profile_border}px solid white;">')
 else:
-    profile_html = '<div class="no-image">No Image</div>'
+    profile_html = (f'<div class="no-image" style="width:{profile_size}px;height:{profile_size}px;">'
+                    f'No Image</div>')
+
+header_html = (f'<header class="header"><div class="page-label">{esc(page_label)}</div></header>'
+               if header_height > 0 else "")
+profile_section = f'<div class="profile-section">{profile_html}</div>' if profile_html else ""
 
 preview = f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 @page {{ size:A4; margin:0; }}
 * {{ box-sizing:border-box; }}
-html,body {{ margin:0; padding:0; font-family:'Noto Sans Tamil','Nirmala UI',sans-serif;
+html,body {{ margin:0; padding:0;
+font-family:'Noto Sans Tamil','Noto Sans','Nirmala UI','Latha',sans-serif;
+font-kerning:normal; text-rendering:optimizeLegibility; letter-spacing:normal;
 -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }}
 body {{ background:#eeeeee; }}
 .page {{ width:794px; min-height:1123px; margin:20px auto; background:white; display:flex;
 flex-direction:column; overflow:hidden; box-shadow:0 2px 14px #0002; }}
 .header {{ height:{header_height}px; flex:0 0 {header_height}px; padding:0 {header_padding}px;
-display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:4px solid black; }}
-.logo {{ max-height:95%; height:auto; object-fit:contain; }}
-.page-label {{ background:linear-gradient(90deg,#000,#ddd); color:white; padding:9px 18px;
-border-radius:6px; font-size:20px; font-weight:bold; white-space:nowrap; }}
+background:#FFFFFF; display:flex; align-items:center; justify-content:flex-end;
+border-bottom:1px solid #000; overflow:hidden; }}
+.page-label {{ color:#111; font-size:{page_label_size}px; font-weight:600; white-space:nowrap; }}
 .content {{ flex:1 0 auto; padding:{top_padding}px {right_padding}px {bottom_padding}px {left_padding}px;
-background:{content_bg}; line-height:{line_height}; overflow-wrap:anywhere; }}
-.content-block {{ white-space:pre-wrap; overflow-wrap:anywhere; margin:0 0 22px 0; }}
-.content-block h2 {{ line-height:1.3; margin:0 0 10px 0; white-space:pre-wrap; overflow-wrap:anywhere; }}
-.supporting {{ white-space:pre-wrap; overflow-wrap:anywhere; }}
-.photo-block {{ width:100%; margin:18px 0 24px; }}
+background:{content_bg}; line-height:{line_height}; overflow-wrap:break-word; }}
+.content-block {{ white-space:pre-wrap; overflow-wrap:break-word; margin:0 0 22px 0; }}
+.content-block:last-child, .photo-block:last-child {{ margin-bottom:0; }}
+.content-block h2 {{ line-height:1.3; margin:0 0 10px 0; white-space:pre-wrap; overflow-wrap:break-word;
+break-after:avoid; page-break-after:avoid; }}
+.supporting {{ white-space:pre-wrap; overflow-wrap:break-word; }}
+.photo-block {{ width:100%; margin:18px 0 24px; line-height:0; break-inside:avoid; page-break-inside:avoid; }}
 .photo-block img {{ display:inline-block; object-fit:contain; }}
 .footer {{ min-height:{footer_height}px; flex:0 0 auto; padding:{footer_padding}px;
-display:flex; align-items:center; gap:24px;
+display:flex; align-items:center; gap:24px; break-inside:avoid; page-break-inside:avoid;
 background:linear-gradient(90deg,{footer_start},#777,{footer_end}); }}
 .profile-section {{ flex:0 0 auto; display:flex; align-items:center; justify-content:{profile_position.lower()}; }}
 .profile {{ display:block; border-radius:50%; object-fit:cover; }}
-.no-image {{ width:170px;height:170px;border-radius:50%;background:#ccc;color:#666;
+.no-image {{ border-radius:50%;background:#ccc;color:#666;
 display:flex;align-items:center;justify-content:center; }}
 .details {{ flex:1;min-width:0;color:{footer_text}; }}
-.name {{ font-size:{name_size}px;font-weight:bold;text-decoration:underline;margin-bottom:12px;overflow-wrap:anywhere; }}
-.highlight {{ font-size:{highlight_size}px;line-height:1.2;overflow-wrap:anywhere; }}
+.name {{ font-size:{name_size}px;font-weight:bold;text-decoration:underline;margin-bottom:12px;overflow-wrap:break-word; }}
+.highlight {{ font-size:{highlight_size}px;line-height:1.2;overflow-wrap:break-word; }}
 .printbar {{ width:794px;margin:12px auto;text-align:right; }}
-.printbar button {{ border:0;background:#111;color:white;border-radius:7px;padding:12px 20px;font-size:16px; }}
+.printbar button {{ border:0;background:#111;color:white;border-radius:7px;padding:12px 20px;font-size:16px;cursor:pointer; }}
 @media(max-width:820px) {{
  body {{ background:#eee; }}
  .page {{ width:100%;min-height:0;margin:8px auto; }}
- .header {{ height:auto;min-height:{header_height}px;flex-wrap:wrap;justify-content:space-around;padding:12px; }}
- .logo {{ max-width:30%;max-height:75px; }}
- .page-label {{ font-size:13px;padding:7px 10px; }}
+ .header {{ padding:0 12px;justify-content:flex-end; }}
+ .page-label {{ font-size:min({page_label_size}px,14px); }}
  .content {{ padding:{top_padding}px 15px {bottom_padding}px 15px; }}
  .footer {{ flex-wrap:wrap;justify-content:center;text-align:center;padding:18px; }}
  .profile-section {{ width:100%;justify-content:center; }}
+ .profile, .no-image {{ max-width:min({profile_size}px,45vw);max-height:min({profile_size}px,45vw); }}
  .details {{ width:100%;text-align:center; }}
  .name {{ font-size:min({name_size}px,30px); }}
  .highlight {{ font-size:min({highlight_size}px,36px); }}
@@ -265,21 +302,36 @@ display:flex;align-items:center;justify-content:center; }}
 @media print {{
  html,body {{ width:210mm;margin:0!important;padding:0!important;background:white!important; }}
  .printbar {{ display:none!important; }}
- .page {{ width:210mm!important;min-height:297mm!important;margin:0!important;box-shadow:none!important;
- break-after:page;page-break-after:always; }}
+ .page {{ width:210mm!important;min-height:296.5mm!important;margin:0!important;box-shadow:none!important;
+ overflow:visible!important; }}
+ .header {{ height:{header_height}px!important;flex-wrap:nowrap!important;padding:0 {header_padding}px!important; }}
+ .content {{ padding:{top_padding}px {right_padding}px {bottom_padding}px {left_padding}px!important; }}
+ .footer {{ flex-wrap:nowrap!important;text-align:left!important;padding:{footer_padding}px!important; }}
+ .profile-section {{ width:auto!important;justify-content:{profile_position.lower()}!important; }}
+ .profile, .no-image {{ max-width:none!important;max-height:none!important; }}
+ .details {{ width:auto!important;text-align:left!important; }}
+ .name {{ font-size:{name_size}px!important; }}
+ .highlight {{ font-size:{highlight_size}px!important; }}
 }}
 </style></head><body>
-<div class="printbar"><button onclick="window.print()">🖨 Print / Save as PDF</button></div>
+<div class="printbar"><button onclick="(document.fonts?document.fonts.ready:Promise.resolve()).then(function(){{window.print();}})">🖨 Print / Save as PDF</button></div>
 <div class="page">
-<header class="header">{logo(focus_logo,focus_logo_width,"Focus Investment logo")}
-{logo(club_logo,club_logo_width,"100CR logo")}<div class="page-label">{esc(page_label)}</div></header>
+{header_html}
 <main class="content">{content_html}</main>
-<footer class="footer"><div class="profile-section">{profile_html}</div>
+<footer class="footer">{profile_section}
 <div class="details"><div class="name">{esc(name)}</div><div class="highlight">{esc(highlight)}</div></div></footer>
 </div></body></html>"""
 
 st.divider()
 st.subheader("Live preview")
-st.info("Use the Print / Save as PDF button inside the preview. In Chrome, enable Background graphics and disable browser Headers and footers.")
-st.components.v1.html(preview, height=1250, scrolling=True)
-st.caption("Optional logo files: assets/focus_logo.png and assets/100cr_logo.png. If not present, the logo positions remain blank.")
+st.info("Use the Print / Save as PDF button inside the preview. In Chrome, enable Background graphics and "
+        "disable browser Headers and footers. On mobile, download the HTML below, open it in your browser "
+        "and print from there so only the profile is printed.")
+if hasattr(st, "iframe"):  # newer Streamlit versions
+    st.iframe(preview, height=1250)
+else:  # older Streamlit versions
+    import streamlit.components.v1 as components
+    components.html(preview, height=1250, scrolling=True)
+st.download_button("⬇ Download profile (HTML for printing)", data=preview.encode("utf-8"),
+                   file_name=f"{(name or 'profile').strip().replace(' ', '_')}_profile.html",
+                   mime="text/html", use_container_width=True)
