@@ -244,6 +244,9 @@ profile_section = f'<div class="profile-section">{profile_html}</div>' if profil
 name_html = f'<div class="name">{esc(name)}</div>' if name.strip() else ""
 highlight_html = f'<div class="highlight">{esc(highlight)}</div>' if highlight.strip() else ""
 details_html = f'<div class="details">{name_html}{highlight_html}</div>' if (name_html or highlight_html) else ""
+# Footer is shown only when it has content (photo, name or highlight).
+footer_html = (f'<footer class="footer">{profile_section}{details_html}</footer>'
+               if (profile_section or details_html) and footer_height >= 0 else "")
 
 preview = f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
@@ -319,8 +322,7 @@ display:flex;align-items:center;justify-content:center; }}
 <div class="page">
 {header_html}
 <main class="content">{content_html}</main>
-<footer class="footer">{profile_section}
-{details_html}</footer>
+{footer_html}
 </div></body></html>"""
 
 st.divider()
