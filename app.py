@@ -46,7 +46,7 @@ st.subheader("Profile details")
 a, b = st.columns(2)
 with a:
     name = st.text_input("Name")
-    highlight = st.text_input("Experience / Highlight", "More than 5 Years")
+    highlight = st.text_input("Experience / Highlight (optional)", "")
     page_label = st.text_input("Page label", "Page 1")
     theme = st.selectbox("Theme", ["Classic Grey", "Royal Blue", "Emerald Green", "Luxury Gold", "White"])
 with b:
@@ -231,18 +231,19 @@ for block in st.session_state.blocks:
 content_html = "\n".join(parts)
 profile_src = upload_img(profile_file)
 
-if profile_size <= 0:
-    profile_html = ""
-elif profile_src:
+# Profile picture is optional: nothing is shown unless a photo is uploaded.
+if profile_src and profile_size > 0:
     profile_html = (f'<img class="profile" src="{profile_src}" alt="" '
                     f'style="width:{profile_size}px;height:{profile_size}px;border:{profile_border}px solid white;">')
 else:
-    profile_html = (f'<div class="no-image" style="width:{profile_size}px;height:{profile_size}px;">'
-                    f'No Image</div>')
+    profile_html = ""
 
 header_html = (f'<header class="header"><div class="page-label">{esc(page_label)}</div></header>'
                if header_height > 0 else "")
 profile_section = f'<div class="profile-section">{profile_html}</div>' if profile_html else ""
+name_html = f'<div class="name">{esc(name)}</div>' if name.strip() else ""
+highlight_html = f'<div class="highlight">{esc(highlight)}</div>' if highlight.strip() else ""
+details_html = f'<div class="details">{name_html}{highlight_html}</div>' if (name_html or highlight_html) else ""
 
 preview = f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
@@ -319,7 +320,7 @@ display:flex;align-items:center;justify-content:center; }}
 {header_html}
 <main class="content">{content_html}</main>
 <footer class="footer">{profile_section}
-<div class="details"><div class="name">{esc(name)}</div><div class="highlight">{esc(highlight)}</div></div></footer>
+{details_html}</footer>
 </div></body></html>"""
 
 st.divider()
