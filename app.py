@@ -42,18 +42,30 @@ for _b in st.session_state.blocks:
 st.title("🎯 Focus Investment – Profile / Story Maker")
 st.caption("Tamil + English community profile maker. Add text, headings and photos anywhere in the content.")
 
-st.subheader("Profile details")
-a, b = st.columns(2)
-with a:
-    name = st.text_input("Name")
-    highlight = st.text_input("Experience / Highlight (optional)", "")
-    page_label = st.text_input("Page label", "Page 1")
-    theme = st.selectbox("Theme", ["Classic Grey", "Royal Blue", "Emerald Green", "Luxury Gold", "White"])
-with b:
-    profile_file = st.file_uploader("Profile picture (optional)", type=["png", "jpg", "jpeg"])
-    profile_size = st.slider("Profile picture size (px)", 0, 300, 170)
-    profile_border = st.slider("Profile picture border (px)", 0, 20, 6)
-    profile_position = st.selectbox("Profile picture alignment", ["Left", "Center", "Right"])
+show_profile_details = st.checkbox("Show Profile details", value=False)
+
+if show_profile_details:
+    st.subheader("Profile details")
+    a, b = st.columns(2)
+    with a:
+        name = st.text_input("Name")
+        highlight = st.text_input("Experience / Highlight (optional)", "")
+        page_label = st.text_input("Page label", "Page 1")
+        theme = st.selectbox("Theme", ["Classic Grey", "Royal Blue", "Emerald Green", "Luxury Gold", "White"])
+    with b:
+        profile_file = st.file_uploader("Profile picture (optional)", type=["png", "jpg", "jpeg"])
+        profile_size = st.slider("Profile picture size (px)", 0, 300, 170)
+        profile_border = st.slider("Profile picture border (px)", 0, 20, 6)
+        profile_position = st.selectbox("Profile picture alignment", ["Left", "Center", "Right"])
+else:
+    name = ""
+    highlight = ""
+    page_label = "Page 1"
+    theme = "Classic Grey"
+    profile_file = None
+    profile_size = 170
+    profile_border = 6
+    profile_position = "Left"
 
 theme_bg = {
     "Classic Grey": "#F4F4F4", "Royal Blue": "#EDF4FF",
@@ -256,7 +268,7 @@ preview = f"""<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 @page {{ size:A4; margin:0; }}
-* {{ box-sizing:border-box; }}
+- {{ box-sizing:border-box; }}
 html,body {{ margin:0; padding:0;
 font-family:'Noto Sans Tamil','Noto Sans','Nirmala UI','Latha',sans-serif;
 font-kerning:normal; text-rendering:optimizeLegibility; letter-spacing:normal;
